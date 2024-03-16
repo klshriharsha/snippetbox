@@ -5,13 +5,11 @@ import (
 	"log"
 	"net/http"
 	"os"
-)
 
-// application is used for dependency injection throughout the `web` application
-type application struct {
-	infoLog  *log.Logger
-	errorLog *log.Logger
-}
+	"github.com/klshriharsha/snippetbox/cmd/web/config"
+	"github.com/klshriharsha/snippetbox/cmd/web/home"
+	"github.com/klshriharsha/snippetbox/cmd/web/snippet"
+)
 
 func main() {
 	// setup a commandline flag to override the network address.
@@ -30,14 +28,14 @@ func main() {
 	// so strip the `/static` prefix from request URL
 	mux.Handle("/static/", http.StripPrefix("/static", fs))
 
-	app := &application{
-		errorLog: errorLog,
-		infoLog:  infoLog,
+	app := &config.Application{
+		ErrorLog: errorLog,
+		InfoLog:  infoLog,
 	}
 
-	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/snippet/view", app.snippetView)
-	mux.HandleFunc("/snippet/create", app.snippetCreate)
+	mux.HandleFunc("/", home.HomeHandler(app))
+	mux.HandleFunc("/snippet/view", snippet.SnippetViewHandler(app))
+	mux.HandleFunc("/snippet/create", snippet.SnippetCreateHandler(app))
 
 	// create an http server with custom error logger
 	srv := &http.Server{
