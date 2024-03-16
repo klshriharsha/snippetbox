@@ -10,6 +10,7 @@ import (
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/klshriharsha/snippetbox/cmd/web/config"
+	"github.com/klshriharsha/snippetbox/internal/models"
 )
 
 func main() {
@@ -38,6 +39,7 @@ func main() {
 	app := &config.Application{
 		ErrorLog: errorLog,
 		InfoLog:  infoLog,
+		Snippets: &models.SnippetModel{DB: db},
 	}
 
 	// create an http server with custom error logger

@@ -28,6 +28,16 @@ func SnippetCreateHandler(app *config.Application) http.HandlerFunc {
 			return
 		}
 
-		w.Write([]byte("create a new snippet"))
+		title := "O snail"
+		content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n-Kobayashi Issa"
+		expires := 7
+
+		id, err := app.Snippets.Insert(title, content, expires)
+		if err != nil {
+			app.ServerError(w, err)
+			return
+		}
+
+		http.Redirect(w, r, fmt.Sprintf("/snippet/view?id=%d", id), http.StatusSeeOther)
 	}
 }
