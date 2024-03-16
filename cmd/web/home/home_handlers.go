@@ -12,7 +12,7 @@ import (
 func HomeHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
-			http.NotFound(w, r)
+			app.NotFoundError(w)
 			return
 		}
 
@@ -25,16 +25,14 @@ func HomeHandler(app *config.Application) http.HandlerFunc {
 		// parses the Go template files into a set of templates
 		ts, err := template.ParseFiles(files...)
 		if err != nil {
-			app.ErrorLog.Print(err.Error())
-			http.Error(w, "internal server error", http.StatusInternalServerError)
+			app.ServerError(w, err)
 			return
 		}
 
 		// executes the `base` template which invokes other templates
 		err = ts.ExecuteTemplate(w, "base", nil)
 		if err != nil {
-			app.ErrorLog.Print(err.Error())
-			http.Error(w, "internal server error", http.StatusInternalServerError)
+			app.ServerError(w, err)
 		}
 	}
 }

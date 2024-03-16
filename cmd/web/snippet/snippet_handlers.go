@@ -8,11 +8,11 @@ import (
 	"github.com/klshriharsha/snippetbox/cmd/web/config"
 )
 
-func SnippetViewHandler(_ *config.Application) http.HandlerFunc {
+func SnippetViewHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.Atoi(r.URL.Query().Get("id"))
 		if err != nil || id < 1 {
-			http.NotFound(w, r)
+			app.NotFoundError(w)
 			return
 		}
 
@@ -20,11 +20,11 @@ func SnippetViewHandler(_ *config.Application) http.HandlerFunc {
 	}
 }
 
-func SnippetCreateHandler(_ *config.Application) http.HandlerFunc {
+func SnippetCreateHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			w.Header().Set("Allow", http.MethodPost)
-			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			app.ClientError(w, http.StatusMethodNotAllowed)
 			return
 		}
 
