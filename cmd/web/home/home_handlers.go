@@ -21,6 +21,9 @@ func HomeHandler(app *config.Application) http.HandlerFunc {
 			return
 		}
 
-		app.RenderPage(w, http.StatusOK, "home.go.tmpl", &config.TemplateData{Snippets: snippets})
+		data := config.NewTemplateData(r)
+		data.Snippets = snippets
+
+		app.RenderPage(w, http.StatusOK, "home.go.tmpl", data)
 	}
 }

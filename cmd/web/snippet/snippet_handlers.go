@@ -29,7 +29,10 @@ func SnippetViewHandler(app *config.Application) http.HandlerFunc {
 			return
 		}
 
-		app.RenderPage(w, http.StatusOK, "view.go.tmpl", &config.TemplateData{Snippet: snippet})
+		data := config.NewTemplateData(r)
+		data.Snippet = snippet
+
+		app.RenderPage(w, http.StatusOK, "view.go.tmpl", data)
 	}
 }
 

@@ -16,7 +16,8 @@ func NewTemplateCache() (map[string]*template.Template, error) {
 		filename := filepath.Base(page)
 
 		// parse the base template file
-		ts, err := template.ParseFiles("./ui/html/base.go.tmpl")
+		// before parsing any templates register the custome template functions
+		ts, err := template.New(filename).Funcs(functions).ParseFiles("./ui/html/base.go.tmpl")
 		if err != nil {
 			return nil, err
 		}
