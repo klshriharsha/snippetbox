@@ -1,11 +1,13 @@
 package snippet
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/klshriharsha/snippetbox/cmd/web/config"
+	"github.com/klshriharsha/snippetbox/internal/models"
 )
 
 func SnippetViewHandler(app *config.Application) http.HandlerFunc {
@@ -16,7 +18,18 @@ func SnippetViewHandler(app *config.Application) http.HandlerFunc {
 			return
 		}
 
-		fmt.Fprintf(w, "view snippet with id %d", id)
+		snippet, err := app.Snippets.Get(id)
+		if err != nil {
+			if errors.Is(err, models.ErrNoRecord) {
+				app.NotFoundError(w)
+				return
+			}
+
+			app.ServerError(w, err)
+			return
+		}
+
+		fmt.Fprintf(w, "%+v", snippet)
 	}
 }
 
