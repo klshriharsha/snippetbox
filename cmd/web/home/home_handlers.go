@@ -6,8 +6,7 @@ import (
 	"github.com/klshriharsha/snippetbox/cmd/web/config"
 )
 
-// home defines the homepage route.
-// writes the necessary html to response body
+// HomeHandler display a list of the latest 10 un-expired snippets
 func HomeHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {

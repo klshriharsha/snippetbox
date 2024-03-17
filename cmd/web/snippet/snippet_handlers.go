@@ -10,6 +10,7 @@ import (
 	"github.com/klshriharsha/snippetbox/internal/models"
 )
 
+// SnippetViewHandler displays the snippet corresponding to the `id` in the query parameters
 func SnippetViewHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.Atoi(r.URL.Query().Get("id"))
@@ -36,6 +37,8 @@ func SnippetViewHandler(app *config.Application) http.HandlerFunc {
 	}
 }
 
+// SnippetCreateHandler creates a new snippet in the database and sends a redirect response
+// to view the created snippet
 func SnippetCreateHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {

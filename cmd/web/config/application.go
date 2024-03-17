@@ -14,8 +14,10 @@ type Application struct {
 	ErrorLog *log.Logger
 
 	// models
+	// Snippets exposes database operations related to snippets
 	Snippets *models.SnippetModel
 
 	// other
+	// TemplateCache holds all the parsed templates in memory
 	TemplateCache map[string]*template.Template
 }

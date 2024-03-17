@@ -7,6 +7,7 @@ import (
 	"runtime/debug"
 )
 
+// ServerError responds with an HTTP 500 error
 func (app *Application) ServerError(w http.ResponseWriter, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
 	app.ErrorLog.Output(2, trace)
@@ -14,14 +15,17 @@ func (app *Application) ServerError(w http.ResponseWriter, err error) {
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }
 
+// ClientError responds with an HTTP error of gives status code
 func (app *Application) ClientError(w http.ResponseWriter, status int) {
 	http.Error(w, http.StatusText(status), status)
 }
 
+// NotFoundError responds with an HTTP 404 error
 func (app *Application) NotFoundError(w http.ResponseWriter) {
 	app.ClientError(w, http.StatusNotFound)
 }
 
+// RenderPage finds the template corresponding to `page` in cache and renders it
 func (app *Application) RenderPage(w http.ResponseWriter, status int, page string, data *TemplateData) {
 	ts, ok := app.TemplateCache[page]
 	if !ok {

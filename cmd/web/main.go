@@ -35,6 +35,7 @@ func main() {
 	}
 	defer db.Close()
 
+	// Parse all templates and cache them in memory to avoid disk access at runtime
 	templateCache, err := config.NewTemplateCache()
 	if err != nil {
 		errorLog.Fatal(err)

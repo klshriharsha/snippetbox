@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 )
 
+// NewTemplateCache initializes the template cache by parsing all page and partial templates and
+// holding them in memory to avoid disk access at runtime
 func NewTemplateCache() (map[string]*template.Template, error) {
 	pages, err := filepath.Glob("./ui/html/pages/*.tmpl")
 	if err != nil {
