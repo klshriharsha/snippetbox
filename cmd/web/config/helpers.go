@@ -1,6 +1,7 @@
 package config
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"runtime/debug"
@@ -29,9 +30,15 @@ func (app *Application) RenderPage(w http.ResponseWriter, status int, page strin
 		return
 	}
 
-	w.WriteHeader(status)
-	// executes the `base` template which invokes other templates
-	if err := ts.ExecuteTemplate(w, "base", data); err != nil {
+	buf := new(bytes.Buffer)
+	// execute the `base` template which invokes other templates
+	// attempt to write to the buffer first and return an error if there is one
+	if err := ts.ExecuteTemplate(buf, "base", data); err != nil {
 		app.ServerError(w, err)
+		return
 	}
+
+	// if the previous write to buffer was successful, write a 200 OK status with the right response
+	w.WriteHeader(status)
+	buf.WriteTo(w)
 }
