@@ -43,7 +43,7 @@ func SnippetViewHandler(app *config.Application) http.HandlerFunc {
 			return
 		}
 
-		if err := ts.ExecuteTemplate(w, "base", webtemplates.TemplateData{Snippet: snippet}); err != nil {
+		if err := ts.ExecuteTemplate(w, "base", &webtemplates.TemplateData{Snippet: snippet}); err != nil {
 			app.ServerError(w, err)
 		}
 	}
