@@ -35,11 +35,17 @@ func main() {
 	}
 	defer db.Close()
 
+	templateCache, err := config.NewTemplateCache()
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
 	// for injecting dependencies to handlers
 	app := &config.Application{
-		ErrorLog: errorLog,
-		InfoLog:  infoLog,
-		Snippets: &models.SnippetModel{DB: db},
+		ErrorLog:      errorLog,
+		InfoLog:       infoLog,
+		Snippets:      &models.SnippetModel{DB: db},
+		TemplateCache: templateCache,
 	}
 
 	// create an http server with custom error logger

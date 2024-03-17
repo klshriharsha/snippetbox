@@ -1,6 +1,7 @@
 package config
 
 import (
+	"html/template"
 	"log"
 
 	"github.com/klshriharsha/snippetbox/internal/models"
@@ -12,4 +13,6 @@ type Application struct {
 	ErrorLog *log.Logger
 
 	Snippets *models.SnippetModel
+
+	TemplateCache map[string]*template.Template
 }

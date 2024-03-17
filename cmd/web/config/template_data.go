@@ -1,4 +1,4 @@
-package webtemplates
+package config
 
 import "github.com/klshriharsha/snippetbox/internal/models"
 
