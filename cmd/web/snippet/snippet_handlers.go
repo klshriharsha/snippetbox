@@ -3,10 +3,12 @@ package snippet
 import (
 	"errors"
 	"fmt"
+	"html/template"
 	"net/http"
 	"strconv"
 
 	"github.com/klshriharsha/snippetbox/cmd/web/config"
+	"github.com/klshriharsha/snippetbox/cmd/web/webtemplates"
 	"github.com/klshriharsha/snippetbox/internal/models"
 )
 
@@ -29,7 +31,21 @@ func SnippetViewHandler(app *config.Application) http.HandlerFunc {
 			return
 		}
 
-		fmt.Fprintf(w, "%+v", snippet)
+		files := []string{
+			"./ui/html/base.go.tmpl",
+			"./ui/html/partials/nav.go.tmpl",
+			"./ui/html/pages/view.go.tmpl",
+		}
+
+		ts, err := template.ParseFiles(files...)
+		if err != nil {
+			app.ServerError(w, err)
+			return
+		}
+
+		if err := ts.ExecuteTemplate(w, "base", webtemplates.TemplateData{Snippet: snippet}); err != nil {
+			app.ServerError(w, err)
+		}
 	}
 }
 
