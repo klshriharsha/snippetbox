@@ -8,7 +8,8 @@ import (
 	"github.com/klshriharsha/snippetbox/cmd/web/snippet"
 )
 
-func routes(app *config.Application) *http.ServeMux {
+// routes register allt he routes and middleware and returns a final handler
+func routes(app *config.Application) http.Handler {
 	mux := http.NewServeMux()
 
 	fs := http.FileServer(staticFileSystem{http.Dir("./ui/static/")})
@@ -20,5 +21,7 @@ func routes(app *config.Application) *http.ServeMux {
 	mux.HandleFunc("/snippet/view", snippet.SnippetViewHandler(app))
 	mux.HandleFunc("/snippet/create", snippet.SnippetCreateHandler(app))
 
-	return mux
+	// secureHeaders middleware runs before any request hits the mux so that all the important
+	// headers are set in every response
+	return secureHeaders(mux)
 }
