@@ -4,8 +4,7 @@ import (
 	"net/http"
 
 	"github.com/klshriharsha/snippetbox/cmd/web/config"
-	"github.com/klshriharsha/snippetbox/cmd/web/home"
-	"github.com/klshriharsha/snippetbox/cmd/web/snippet"
+	"github.com/klshriharsha/snippetbox/cmd/web/handlers"
 )
 
 // routes register allt he routes and middleware and returns a final handler
@@ -17,9 +16,9 @@ func routes(app *config.Application) http.Handler {
 	// so strip the `/static` prefix from request URL
 	mux.Handle("/static/", http.StripPrefix("/static", fs))
 
-	mux.HandleFunc("/", home.HomeHandler(app))
-	mux.HandleFunc("/snippet/view", snippet.SnippetViewHandler(app))
-	mux.HandleFunc("/snippet/create", snippet.SnippetCreateHandler(app))
+	mux.HandleFunc("/", handlers.HomeHandler(app))
+	mux.HandleFunc("/snippet/view", handlers.SnippetViewHandler(app))
+	mux.HandleFunc("/snippet/create", handlers.SnippetCreateHandler(app))
 
 	// LogRequestMiddleware logs information about every request
 	// secureHeaders middleware runs before any request hits the mux so that all the important

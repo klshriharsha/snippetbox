@@ -1,4 +1,4 @@
-package snippet
+package handlers
 
 import (
 	"errors"
@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/klshriharsha/snippetbox/cmd/web/config"
+	"github.com/klshriharsha/snippetbox/cmd/web/render"
 	"github.com/klshriharsha/snippetbox/internal/models"
 )
 
@@ -30,7 +31,7 @@ func SnippetViewHandler(app *config.Application) http.HandlerFunc {
 			return
 		}
 
-		data := config.NewTemplateData(r)
+		data := render.NewTemplateData(r)
 		data.Snippet = snippet
 
 		app.RenderPage(w, http.StatusOK, "view.go.tmpl", data)

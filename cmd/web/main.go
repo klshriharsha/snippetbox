@@ -10,6 +10,7 @@ import (
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/klshriharsha/snippetbox/cmd/web/config"
+	"github.com/klshriharsha/snippetbox/cmd/web/render"
 	"github.com/klshriharsha/snippetbox/internal/models"
 )
 
@@ -36,7 +37,7 @@ func main() {
 	defer db.Close()
 
 	// Parse all templates and cache them in memory to avoid disk access at runtime
-	templateCache, err := config.NewTemplateCache()
+	templateCache, err := render.NewTemplateCache()
 	if err != nil {
 		errorLog.Fatal(err)
 	}

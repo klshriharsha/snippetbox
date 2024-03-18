@@ -1,4 +1,4 @@
-package config
+package render
 
 import (
 	"text/template"
