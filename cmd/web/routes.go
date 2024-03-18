@@ -23,5 +23,5 @@ func routes(app *config.Application) http.Handler {
 	// LogRequestMiddleware logs information about every request
 	// secureHeaders middleware runs before any request hits the mux so that all the important
 	// headers are set in every response
-	return app.LogRequestMiddleware(secureHeaders(mux))
+	return app.RecoverPanic(app.LogRequestMiddleware(secureHeaders(mux)))
 }
