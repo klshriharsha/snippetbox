@@ -1,6 +1,8 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+)
 
 // secureHeaders middleware sets important header fields in every response to avoid various types of
 // attacks

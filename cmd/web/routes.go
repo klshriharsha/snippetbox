@@ -21,7 +21,8 @@ func routes(app *config.Application) http.Handler {
 	mux.HandleFunc("/snippet/view", snippet.SnippetViewHandler(app))
 	mux.HandleFunc("/snippet/create", snippet.SnippetCreateHandler(app))
 
+	// LogRequestMiddleware logs information about every request
 	// secureHeaders middleware runs before any request hits the mux so that all the important
 	// headers are set in every response
-	return secureHeaders(mux)
+	return app.LogRequestMiddleware(secureHeaders(mux))
 }
