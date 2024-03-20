@@ -67,30 +67,15 @@ func SnippetCreateHandler(app *config.Application) http.HandlerFunc {
 // to view the created snippet
 func SnippetCreatePostHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := r.ParseForm(); err != nil {
+		form := snippetCreateFrom{FieldErrors: make(map[string]string)}
+		if err := app.DecodePostForm(r, &form); err != nil {
 			app.ClientError(w, http.StatusBadRequest)
 			return
-		}
-
-		title := r.PostForm.Get("title")
-		content := r.PostForm.Get("content")
-		expires, err := strconv.Atoi(r.PostForm.Get("expires"))
-		if err != nil {
-			app.ClientError(w, http.StatusBadRequest)
-			return
-		}
-
-		form := snippetCreateFrom{
-			Title:       title,
-			Content:     content,
-			Expires:     expires,
-			FieldErrors: make(map[string]string),
 		}
 
 		form.CheckField(validator.NotBlank(form.Title), "title", "Title cannot be empty")
 		form.CheckField(validator.MaxChars(form.Content, 100), "content", "Content cannot be empty")
 		form.CheckField(validator.ValidInt(form.Expires, 1, 7, 365), "expires", "Expires can only be 1, 7 or 365")
-
 		if !form.Valid() {
 			// if there are validation errors, render the same template with original field
 			// values and field errors
@@ -100,7 +85,7 @@ func SnippetCreatePostHandler(app *config.Application) http.HandlerFunc {
 			return
 		}
 
-		id, err := app.Snippets.Insert(title, content, expires)
+		id, err := app.Snippets.Insert(form.Title, form.Content, form.Expires)
 		if err != nil {
 			app.ServerError(w, err)
 			return

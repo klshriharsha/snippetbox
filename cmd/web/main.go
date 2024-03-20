@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/go-playground/form"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/klshriharsha/snippetbox/cmd/web/config"
 	"github.com/klshriharsha/snippetbox/cmd/web/render"
@@ -36,11 +37,14 @@ func main() {
 	}
 	defer db.Close()
 
-	// Parse all templates and cache them in memory to avoid disk access at runtime
+	// parse all templates and cache them in memory to avoid disk access at runtime
 	templateCache, err := render.NewTemplateCache()
 	if err != nil {
 		errorLog.Fatal(err)
 	}
+
+	// for decoding form data received in POST body into an interface
+	formDecoder := form.NewDecoder()
 
 	// for injecting dependencies to handlers
 	app := &config.Application{
@@ -48,6 +52,7 @@ func main() {
 		InfoLog:       infoLog,
 		Snippets:      &models.SnippetModel{DB: db},
 		TemplateCache: templateCache,
+		FormDecoder:   formDecoder,
 	}
 
 	// create an http server with custom error logger

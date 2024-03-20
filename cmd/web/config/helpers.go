@@ -2,10 +2,12 @@ package config
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"net/http"
 	"runtime/debug"
 
+	"github.com/go-playground/form"
 	"github.com/klshriharsha/snippetbox/cmd/web/render"
 )
 
@@ -47,4 +49,23 @@ func (app *Application) RenderPage(w http.ResponseWriter, status int, page strin
 	// if the previous write to buffer was successful, write a 200 OK status with the right response
 	w.WriteHeader(status)
 	buf.WriteTo(w)
+}
+
+// DecodePostForm decodes form data in a POST request body into `dst`
+func (app *Application) DecodePostForm(r *http.Request, dst any) error {
+	if err := r.ParseForm(); err != nil {
+		return err
+	}
+
+	if err := app.FormDecoder.Decode(dst, r.PostForm); err != nil {
+		var invalidDecoderErr *form.InvalidDecoderError
+
+		if errors.Is(err, invalidDecoderErr) {
+			panic(err)
+		}
+
+		return err
+	}
+
+	return nil
 }
