@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/julienschmidt/httprouter"
 	"github.com/klshriharsha/snippetbox/cmd/web/config"
 	"github.com/klshriharsha/snippetbox/cmd/web/render"
 	"github.com/klshriharsha/snippetbox/internal/models"
@@ -14,7 +15,9 @@ import (
 // SnippetViewHandler displays the snippet corresponding to the `id` in the query parameters
 func SnippetViewHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := strconv.Atoi(r.URL.Query().Get("id"))
+		// get the snippet id from named parameters in the request context
+		params := httprouter.ParamsFromContext(r.Context())
+		id, err := strconv.Atoi(params.ByName("id"))
 		if err != nil || id < 1 {
 			app.NotFoundError(w)
 			return
@@ -38,16 +41,16 @@ func SnippetViewHandler(app *config.Application) http.HandlerFunc {
 	}
 }
 
-// SnippetCreateHandler creates a new snippet in the database and sends a redirect response
-// to view the created snippet
 func SnippetCreateHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			w.Header().Set("Allow", http.MethodPost)
-			app.ClientError(w, http.StatusMethodNotAllowed)
-			return
-		}
+		w.Write([]byte("display a form to create snippet"))
+	}
+}
 
+// SnippetCreatePostHandler creates a new snippet in the database and sends a redirect response
+// to view the created snippet
+func SnippetCreatePostHandler(app *config.Application) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		title := "O snail"
 		content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n-Kobayashi Issa"
 		expires := 7
