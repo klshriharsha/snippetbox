@@ -12,6 +12,7 @@ type TemplateData struct {
 	Snippet     *models.Snippet
 	Snippets    []*models.Snippet
 	CurrentYear int
+	Form        any
 }
 
 // NewTemplateData creates a new `TemplateData` with `CurrentYear` initialized
