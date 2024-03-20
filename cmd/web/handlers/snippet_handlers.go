@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
-	"unicode/utf8"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/klshriharsha/snippetbox/cmd/web/config"
 	"github.com/klshriharsha/snippetbox/cmd/web/render"
 	"github.com/klshriharsha/snippetbox/internal/models"
+	"github.com/klshriharsha/snippetbox/internal/validator"
 )
 
 // SnippetViewHandler displays the snippet corresponding to the `id` in the query parameters
@@ -48,6 +47,7 @@ type snippetCreateFrom struct {
 	Content     string
 	Expires     int
 	FieldErrors map[string]string
+	validator.Validator
 }
 
 func SnippetCreateHandler(app *config.Application) http.HandlerFunc {
@@ -87,18 +87,11 @@ func SnippetCreatePostHandler(app *config.Application) http.HandlerFunc {
 			FieldErrors: make(map[string]string),
 		}
 
-		if strings.TrimSpace(title) == "" {
-			form.FieldErrors["title"] = "Title cannot be empty"
-		} else if utf8.RuneCountInString(title) > 100 {
-			form.FieldErrors["title"] = "Title cannot be longer than 100 characters"
-		}
-		if strings.TrimSpace(content) == "" {
-			form.FieldErrors["content"] = "Content cannot be empty"
-		}
-		if expires != 1 && expires != 7 && expires != 365 {
-			form.FieldErrors["expires"] = "Expires can only be 1, 7 or 365"
-		}
-		if len(form.FieldErrors) > 0 {
+		form.CheckField(validator.NotBlank(form.Title), "title", "Title cannot be empty")
+		form.CheckField(validator.MaxChars(form.Content, 100), "content", "Content cannot be empty")
+		form.CheckField(validator.ValidInt(form.Expires, 1, 7, 365), "expires", "Expires can only be 1, 7 or 365")
+
+		if !form.Valid() {
 			// if there are validation errors, render the same template with original field
 			// values and field errors
 			data := render.NewTemplateData(r)
