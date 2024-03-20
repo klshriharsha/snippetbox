@@ -1,14 +1,19 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"flag"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 
+	"github.com/alexedwards/scs/pgxstore"
+	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form"
+	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/klshriharsha/snippetbox/cmd/web/config"
 	"github.com/klshriharsha/snippetbox/cmd/web/render"
@@ -31,11 +36,11 @@ func main() {
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	// attempt to connect to the PostgreSQL database
-	db, err := connectDB(*pgURL)
+	pool, err := pgxpool.New(context.Background(), *pgURL)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
-	defer db.Close()
+	defer pool.Close()
 
 	// parse all templates and cache them in memory to avoid disk access at runtime
 	templateCache, err := render.NewTemplateCache()
@@ -46,13 +51,19 @@ func main() {
 	// for decoding form data received in POST body into an interface
 	formDecoder := form.NewDecoder()
 
+	// initialize a session manager
+	sessionManager := scs.New()
+	sessionManager.Store = pgxstore.New(pool)
+	sessionManager.Lifetime = 12 * time.Hour
+
 	// for injecting dependencies to handlers
 	app := &config.Application{
-		ErrorLog:      errorLog,
-		InfoLog:       infoLog,
-		Snippets:      &models.SnippetModel{DB: db},
-		TemplateCache: templateCache,
-		FormDecoder:   formDecoder,
+		ErrorLog:       errorLog,
+		InfoLog:        infoLog,
+		Snippets:       &models.SnippetModel{DB: pool},
+		TemplateCache:  templateCache,
+		FormDecoder:    formDecoder,
+		SessionManager: sessionManager,
 	}
 
 	// create an http server with custom error logger

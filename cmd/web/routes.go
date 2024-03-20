@@ -18,10 +18,12 @@ func routes(app *config.Application) http.Handler {
 		app.NotFoundError(w)
 	})
 
-	router.HandlerFunc(http.MethodGet, "/", handlers.HomeHandler(app))
-	router.HandlerFunc(http.MethodGet, "/snippet/view/:id", handlers.SnippetViewHandler(app))
-	router.HandlerFunc(http.MethodGet, "/snippet/create", handlers.SnippetCreateHandler(app))
-	router.HandlerFunc(http.MethodPost, "/snippet/create", handlers.SnippetCreatePostHandler(app))
+	dynamic := alice.New(app.SessionManager.LoadAndSave)
+
+	router.Handler(http.MethodGet, "/", dynamic.ThenFunc(handlers.HomeHandler(app)))
+	router.Handler(http.MethodGet, "/snippet/view/:id", dynamic.ThenFunc(handlers.SnippetViewHandler(app)))
+	router.Handler(http.MethodGet, "/snippet/create", dynamic.ThenFunc(handlers.SnippetCreateHandler(app)))
+	router.Handler(http.MethodPost, "/snippet/create", dynamic.ThenFunc(handlers.SnippetCreatePostHandler(app)))
 
 	// file server looks for the file under `./ui/static/`
 	// so strip the `/static` prefix from request URL

@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"log"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form"
 	"github.com/klshriharsha/snippetbox/internal/models"
 )
@@ -20,6 +21,7 @@ type Application struct {
 
 	// other
 	// TemplateCache holds all the parsed templates in memory
-	TemplateCache map[string]*template.Template
-	FormDecoder   *form.Decoder
+	TemplateCache  map[string]*template.Template
+	FormDecoder    *form.Decoder
+	SessionManager *scs.SessionManager
 }

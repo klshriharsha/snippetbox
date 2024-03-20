@@ -1,9 +1,12 @@
 package models
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Snippet struct {
@@ -15,7 +18,7 @@ type Snippet struct {
 }
 
 type SnippetModel struct {
-	DB *sql.DB
+	DB *pgxpool.Pool
 }
 
 func (m *SnippetModel) Insert(title string, content string, expires int) (int, error) {
@@ -25,7 +28,7 @@ func (m *SnippetModel) Insert(title string, content string, expires int) (int, e
 	`
 
 	id := 0
-	if err := m.DB.QueryRow(stmt, title, content, expires).Scan(&id); err != nil {
+	if err := m.DB.QueryRow(context.Background(), stmt, title, content, expires).Scan(&id); err != nil {
 		return 0, err
 	}
 
@@ -40,7 +43,7 @@ func (m *SnippetModel) Get(id int) (*Snippet, error) {
 	`
 
 	var snippet Snippet
-	err := m.DB.QueryRow(stmt, id).Scan(
+	err := m.DB.QueryRow(context.Background(), stmt, id).Scan(
 		&snippet.ID,
 		&snippet.Title,
 		&snippet.Content,
@@ -66,7 +69,7 @@ func (m *SnippetModel) Latest() ([]*Snippet, error) {
 	ORDER BY id DESC
 	LIMIT 10
 	`
-	rows, err := m.DB.Query(stmt)
+	rows, err := m.DB.Query(context.Background(), stmt)
 	if err != nil {
 		return nil, err
 	}
