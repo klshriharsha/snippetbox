@@ -8,7 +8,6 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/klshriharsha/snippetbox/cmd/web/config"
-	"github.com/klshriharsha/snippetbox/cmd/web/render"
 	"github.com/klshriharsha/snippetbox/internal/models"
 	"github.com/klshriharsha/snippetbox/internal/validator"
 )
@@ -35,7 +34,7 @@ func SnippetViewHandler(app *config.Application) http.HandlerFunc {
 			return
 		}
 
-		data := render.NewTemplateData(r)
+		data := app.NewTemplateData(r)
 		data.Snippet = snippet
 
 		app.RenderPage(w, http.StatusOK, "view.go.tmpl", data)
@@ -43,16 +42,15 @@ func SnippetViewHandler(app *config.Application) http.HandlerFunc {
 }
 
 type snippetCreateFrom struct {
-	Title       string
-	Content     string
-	Expires     int
-	FieldErrors map[string]string
-	validator.Validator
+	Title               string `form:"title"`
+	Content             string `form:"content"`
+	Expires             int    `form:"expires"`
+	validator.Validator `form:"-"`
 }
 
 func SnippetCreateHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		data := render.NewTemplateData(r)
+		data := app.NewTemplateData(r)
 		data.Form = snippetCreateFrom{
 			Title:   "",
 			Content: "",
@@ -67,7 +65,7 @@ func SnippetCreateHandler(app *config.Application) http.HandlerFunc {
 // to view the created snippet
 func SnippetCreatePostHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		form := snippetCreateFrom{FieldErrors: make(map[string]string)}
+		form := snippetCreateFrom{Validator: validator.Validator{FieldErrors: make(map[string]string)}}
 		if err := app.DecodePostForm(r, &form); err != nil {
 			app.ClientError(w, http.StatusBadRequest)
 			return
@@ -79,7 +77,7 @@ func SnippetCreatePostHandler(app *config.Application) http.HandlerFunc {
 		if !form.Valid() {
 			// if there are validation errors, render the same template with original field
 			// values and field errors
-			data := render.NewTemplateData(r)
+			data := app.NewTemplateData(r)
 			data.Form = form
 			app.RenderPage(w, http.StatusUnprocessableEntity, "create.go.tmpl", data)
 			return
@@ -90,6 +88,7 @@ func SnippetCreatePostHandler(app *config.Application) http.HandlerFunc {
 			app.ServerError(w, err)
 			return
 		}
+		app.SessionManager.Put(r.Context(), "flash", "Snippet created successfully!")
 
 		http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 	}

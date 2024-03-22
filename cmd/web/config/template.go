@@ -1,9 +1,30 @@
-package render
+package config
 
 import (
 	"html/template"
+	"net/http"
 	"path/filepath"
+	"time"
+
+	"github.com/klshriharsha/snippetbox/internal/models"
 )
+
+// TemplateData holds all the data passed to Go templates
+type TemplateData struct {
+	Snippet     *models.Snippet
+	Snippets    []*models.Snippet
+	CurrentYear int
+	Form        any
+	Flash       string
+}
+
+// NewTemplateData creates a new `TemplateData` with `CurrentYear` initialized
+func (app *Application) NewTemplateData(r *http.Request) *TemplateData {
+	return &TemplateData{
+		CurrentYear: time.Now().Year(),
+		Flash:       app.SessionManager.PopString(r.Context(), "flash"),
+	}
+}
 
 // NewTemplateCache initializes the template cache by parsing all page and partial templates and
 // holding them in memory to avoid disk access at runtime
@@ -38,4 +59,14 @@ func NewTemplateCache() (map[string]*template.Template, error) {
 	}
 
 	return cache, nil
+}
+
+// standardDate formats date into a human-readable format
+func standardDate(t time.Time) string {
+	return t.Format("02 Jan 2006 at 15:04")
+}
+
+// map of custom template functions to register before parsing any template
+var functions = template.FuncMap{
+	"standardDate": standardDate,
 }

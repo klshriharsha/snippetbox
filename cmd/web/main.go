@@ -16,7 +16,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/klshriharsha/snippetbox/cmd/web/config"
-	"github.com/klshriharsha/snippetbox/cmd/web/render"
 	"github.com/klshriharsha/snippetbox/internal/models"
 )
 
@@ -43,7 +42,7 @@ func main() {
 	defer pool.Close()
 
 	// parse all templates and cache them in memory to avoid disk access at runtime
-	templateCache, err := render.NewTemplateCache()
+	templateCache, err := config.NewTemplateCache()
 	if err != nil {
 		errorLog.Fatal(err)
 	}

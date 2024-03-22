@@ -8,7 +8,6 @@ import (
 	"runtime/debug"
 
 	"github.com/go-playground/form"
-	"github.com/klshriharsha/snippetbox/cmd/web/render"
 )
 
 // ServerError responds with an HTTP 500 error
@@ -30,7 +29,7 @@ func (app *Application) NotFoundError(w http.ResponseWriter) {
 }
 
 // RenderPage finds the template corresponding to `page` in cache and renders it
-func (app *Application) RenderPage(w http.ResponseWriter, status int, page string, data *render.TemplateData) {
+func (app *Application) RenderPage(w http.ResponseWriter, status int, page string, data *TemplateData) {
 	ts, ok := app.TemplateCache[page]
 	if !ok {
 		err := fmt.Errorf("template %s does not exist", page)
