@@ -51,11 +51,7 @@ type snippetCreateFrom struct {
 func SnippetCreateHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := app.NewTemplateData(r)
-		data.Form = snippetCreateFrom{
-			Title:   "",
-			Content: "",
-			Expires: 365,
-		}
+		data.Form = snippetCreateFrom{Expires: 365}
 
 		app.RenderPage(w, http.StatusOK, "create.go.tmpl", data)
 	}

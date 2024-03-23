@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"database/sql"
+	"crypto/tls"
 	"flag"
 	"log"
 	"net/http"
@@ -35,7 +35,7 @@ func main() {
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	// attempt to connect to the PostgreSQL database
-	pool, err := pgxpool.New(context.Background(), *pgURL)
+	pool, err := connectDB(*pgURL)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
@@ -57,38 +57,50 @@ func main() {
 
 	// for injecting dependencies to handlers
 	app := &config.Application{
-		ErrorLog:       errorLog,
-		InfoLog:        infoLog,
-		Snippets:       &models.SnippetModel{DB: pool},
+		ErrorLog: errorLog,
+		InfoLog:  infoLog,
+
+		Snippets: &models.SnippetModel{DB: pool},
+		Users:    &models.UserModel{DB: pool},
+
 		TemplateCache:  templateCache,
 		FormDecoder:    formDecoder,
 		SessionManager: sessionManager,
 	}
 
+	// TLS configuration for higher security
+	tlsConfig := tls.Config{
+		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
+	}
+
 	// create an http server with custom error logger
 	srv := &http.Server{
-		Addr:     *addr,
-		Handler:  routes(app),
-		ErrorLog: errorLog,
+		Addr:         *addr,
+		Handler:      routes(app),
+		ErrorLog:     errorLog,
+		TLSConfig:    &tlsConfig,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	infoLog.Printf("starting server on %s", *addr)
-	err = srv.ListenAndServe()
+	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	errorLog.Fatal(err)
 }
 
 // connectDB creates an SQL connection pool and ensures a successful ping
-func connectDB(pgURL string) (*sql.DB, error) {
+func connectDB(pgURL string) (*pgxpool.Pool, error) {
 	parsedURL, err := url.Parse(pgURL)
 	if err != nil {
 		return nil, err
 	}
 
-	conn, err := sql.Open("pgx", parsedURL.String())
+	conn, err := pgxpool.New(context.Background(), parsedURL.String())
 	if err != nil {
 		return nil, err
 	}
-	if err := conn.Ping(); err != nil {
+	if err := conn.Ping(context.Background()); err != nil {
 		return nil, err
 	}
 

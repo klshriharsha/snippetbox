@@ -2,10 +2,10 @@ package models
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -51,7 +51,7 @@ func (m *SnippetModel) Get(id int) (*Snippet, error) {
 		&snippet.Expires,
 	)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrNoRecord
 		}
 

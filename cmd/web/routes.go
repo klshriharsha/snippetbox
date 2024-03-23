@@ -21,9 +21,16 @@ func routes(app *config.Application) http.Handler {
 	dynamic := alice.New(app.SessionManager.LoadAndSave)
 
 	router.Handler(http.MethodGet, "/", dynamic.Then(handlers.HomeHandler(app)))
+
 	router.Handler(http.MethodGet, "/snippet/view/:id", dynamic.Then(handlers.SnippetViewHandler(app)))
 	router.Handler(http.MethodGet, "/snippet/create", dynamic.Then(handlers.SnippetCreateHandler(app)))
 	router.Handler(http.MethodPost, "/snippet/create", dynamic.Then(handlers.SnippetCreatePostHandler(app)))
+
+	router.Handler(http.MethodGet, "/user/signup", dynamic.Then(handlers.SignupHandler(app)))
+	router.Handler(http.MethodPost, "/user/signup", dynamic.Then(handlers.SignupPostHandler(app)))
+	router.Handler(http.MethodGet, "/user/login", dynamic.Then(handlers.LoginHandler(app)))
+	router.Handler(http.MethodPost, "/user/login", dynamic.Then(handlers.LoginPostHandler(app)))
+	router.Handler(http.MethodPost, "/user/logout", dynamic.Then(handlers.LogoutPostHandler(app)))
 
 	// file server looks for the file under `./ui/static/`
 	// so strip the `/static` prefix from request URL

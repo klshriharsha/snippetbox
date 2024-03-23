@@ -18,6 +18,7 @@ type Application struct {
 	// models
 	// Snippets exposes database operations related to snippets
 	Snippets *models.SnippetModel
+	Users    *models.UserModel
 
 	// other
 	// TemplateCache holds all the parsed templates in memory
