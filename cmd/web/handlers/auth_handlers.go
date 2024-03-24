@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/klshriharsha/snippetbox/cmd/web/config"
@@ -136,6 +135,14 @@ func LoginPostHandler(app *config.Application) http.HandlerFunc {
 
 func LogoutPostHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "logout post handler")
+		if err := app.SessionManager.RenewToken(r.Context()); err != nil {
+			app.ServerError(w, err)
+			return
+		}
+
+		app.SessionManager.Remove(r.Context(), "authenticatedUserID")
+		app.SessionManager.Put(r.Context(), "flash", "You've been logged out successfully")
+
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }
