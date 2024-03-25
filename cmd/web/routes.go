@@ -18,7 +18,9 @@ func routes(app *config.Application) http.Handler {
 		app.NotFoundError(w)
 	})
 
-	dynamic := alice.New(app.SessionManager.LoadAndSave)
+	// LoadAndSave middleware initializes the session manager from the request context
+	// noSurf middleware handles CSRF tokens on all pages (logout appears on all pages)
+	dynamic := alice.New(app.SessionManager.LoadAndSave, noSurf)
 
 	router.Handler(http.MethodGet, "/", dynamic.Then(handlers.HomeHandler(app)))
 
@@ -29,6 +31,7 @@ func routes(app *config.Application) http.Handler {
 
 	router.Handler(http.MethodGet, "/snippet/view/:id", dynamic.Then(handlers.SnippetViewHandler(app)))
 
+	// protects relevant routes with an authorization middleware
 	protected := dynamic.Append(app.RequireAuth)
 
 	router.Handler(http.MethodGet, "/snippet/create", protected.Then(handlers.SnippetCreateHandler(app)))

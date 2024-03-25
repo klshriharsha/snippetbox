@@ -2,6 +2,8 @@ package main
 
 import (
 	"net/http"
+
+	"github.com/justinas/nosurf"
 )
 
 // secureHeaders middleware sets important header fields in every response to avoid various types of
@@ -20,4 +22,15 @@ func secureHeaders(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func noSurf(next http.Handler) http.Handler {
+	csrfHandler := nosurf.New(next)
+	csrfHandler.SetBaseCookie(http.Cookie{
+		HttpOnly: true,
+		Secure:   true,
+		Path:     "/",
+	})
+
+	return csrfHandler
 }

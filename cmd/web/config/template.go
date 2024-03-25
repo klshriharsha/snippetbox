@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/justinas/nosurf"
 	"github.com/klshriharsha/snippetbox/internal/models"
 )
 
@@ -17,6 +18,7 @@ type TemplateData struct {
 	Form            any
 	Flash           string
 	IsAuthenticated bool
+	CSRFToken       string
 }
 
 // NewTemplateData creates a new `TemplateData` with `CurrentYear` initialized
@@ -25,6 +27,7 @@ func (app *Application) NewTemplateData(r *http.Request) *TemplateData {
 		CurrentYear:     time.Now().Year(),
 		Flash:           app.SessionManager.PopString(r.Context(), "flash"),
 		IsAuthenticated: app.isAuthenticated(r),
+		CSRFToken:       nosurf.Token(r),
 	}
 }
 
