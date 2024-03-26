@@ -36,7 +36,7 @@ func (app *Application) NewTemplateData(r *http.Request) *TemplateData {
 // NewTemplateCache initializes the template cache by parsing all page and partial templates and
 // holding them in memory to avoid disk access at runtime
 func NewTemplateCache() (map[string]*template.Template, error) {
-	pages, err := fs.Glob(ui.Files, "./ui/html/pages/*.tmpl")
+	pages, err := fs.Glob(ui.Files, "html/pages/*.tmpl")
 	if err != nil {
 		return nil, err
 	}
@@ -51,19 +51,8 @@ func NewTemplateCache() (map[string]*template.Template, error) {
 			page,
 		}
 
-		// parse the base template file
-		// before parsing any templates register the custome template functions
+		// parse the base, partials and the main page templates
 		ts, err := template.New(filename).Funcs(functions).ParseFS(ui.Files, patterns...)
-		if err != nil {
-			return nil, err
-		}
-		// parse all partials into the same template set
-		ts, err = ts.ParseGlob("./ui/html/partials/*.tmpl")
-		if err != nil {
-			return nil, err
-		}
-		// parse the main template into the same template set
-		ts, err = ts.ParseFiles(page)
 		if err != nil {
 			return nil, err
 		}
