@@ -2,12 +2,14 @@ package config
 
 import (
 	"html/template"
+	"io/fs"
 	"net/http"
 	"path/filepath"
 	"time"
 
 	"github.com/justinas/nosurf"
 	"github.com/klshriharsha/snippetbox/internal/models"
+	"github.com/klshriharsha/snippetbox/ui"
 )
 
 // TemplateData holds all the data passed to Go templates
@@ -34,7 +36,7 @@ func (app *Application) NewTemplateData(r *http.Request) *TemplateData {
 // NewTemplateCache initializes the template cache by parsing all page and partial templates and
 // holding them in memory to avoid disk access at runtime
 func NewTemplateCache() (map[string]*template.Template, error) {
-	pages, err := filepath.Glob("./ui/html/pages/*.tmpl")
+	pages, err := fs.Glob(ui.Files, "./ui/html/pages/*.tmpl")
 	if err != nil {
 		return nil, err
 	}
@@ -43,9 +45,15 @@ func NewTemplateCache() (map[string]*template.Template, error) {
 	for _, page := range pages {
 		filename := filepath.Base(page)
 
+		patterns := []string{
+			"html/base.go.tmpl",
+			"html/partials/*.tmpl",
+			page,
+		}
+
 		// parse the base template file
 		// before parsing any templates register the custome template functions
-		ts, err := template.New(filename).Funcs(functions).ParseFiles("./ui/html/base.go.tmpl")
+		ts, err := template.New(filename).Funcs(functions).ParseFS(ui.Files, patterns...)
 		if err != nil {
 			return nil, err
 		}

@@ -7,6 +7,7 @@ import (
 	"github.com/justinas/alice"
 	"github.com/klshriharsha/snippetbox/cmd/web/config"
 	"github.com/klshriharsha/snippetbox/cmd/web/handlers"
+	"github.com/klshriharsha/snippetbox/ui"
 )
 
 // routes register allt he routes and middleware and returns a final handler
@@ -39,10 +40,8 @@ func routes(app *config.Application) http.Handler {
 
 	router.Handler(http.MethodPost, "/user/logout", protected.Then(handlers.LogoutPostHandler(app)))
 
-	// file server looks for the file under `./ui/static/`
-	// so strip the `/static` prefix from request URL
-	fs := http.FileServer(staticFileSystem{http.Dir("./ui/static/")})
-	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static", fs))
+	fs := http.FileServer(http.FS(ui.Files))
+	router.Handler(http.MethodGet, "/static/*filepath", fs)
 
 	// alice.New simplifies the process of chaining and composing middleware
 	// LogRequestMiddleware logs information about every request
