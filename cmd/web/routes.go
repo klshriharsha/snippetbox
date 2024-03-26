@@ -20,7 +20,7 @@ func routes(app *config.Application) http.Handler {
 
 	// LoadAndSave middleware initializes the session manager from the request context
 	// noSurf middleware handles CSRF tokens on all pages (logout appears on all pages)
-	dynamic := alice.New(app.SessionManager.LoadAndSave, noSurf)
+	dynamic := alice.New(app.SessionManager.LoadAndSave, noSurf, app.Authenticate)
 
 	router.Handler(http.MethodGet, "/", dynamic.Then(handlers.HomeHandler(app)))
 

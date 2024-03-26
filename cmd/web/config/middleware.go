@@ -1,6 +1,7 @@
 package config
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 )
@@ -45,6 +46,32 @@ func (app *Application) RequireAuth(next http.Handler) http.Handler {
 		}
 
 		w.Header().Add("Cache-Control", "no-store")
+		next.ServeHTTP(w, r)
+	})
+}
+
+// Authenticate middleware checks if the request context contains a valid user ID
+func (app *Application) Authenticate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		id := app.SessionManager.GetInt(r.Context(), "authenticatedUserID")
+		if id == 0 {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// check if a user with the `id` exists
+		exists, err := app.Users.Exists(id)
+		if err != nil {
+			app.ServerError(w, err)
+			return
+		}
+
+		if exists {
+			// add isAuthenticated: true to the request context
+			ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
+			r = r.WithContext(ctx)
+		}
+
 		next.ServeHTTP(w, r)
 	})
 }
