@@ -69,7 +69,7 @@ func SnippetCreatePostHandler(app *config.Application) http.HandlerFunc {
 
 		form.CheckField(validator.NotBlank(form.Title), "title", "Title cannot be empty")
 		form.CheckField(validator.MaxChars(form.Content, 100), "content", "Content cannot be empty")
-		form.CheckField(validator.ValidInt(form.Expires, 1, 7, 365), "expires", "Expires can only be 1, 7 or 365")
+		form.CheckField(validator.ValidValue(form.Expires, 1, 7, 365), "expires", "Expires can only be 1, 7 or 365")
 		if !form.Valid() {
 			// if there are validation errors, render the same template with original field
 			// values and field errors

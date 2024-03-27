@@ -62,7 +62,7 @@ func Matches(value string, rx *regexp.Regexp) bool {
 }
 
 // ValidInt checks if `value` is one of `values`
-func ValidInt(value int, values ...int) bool {
+func ValidValue[T comparable](value T, values ...T) bool {
 	for i := range values {
 		if value == values[i] {
 			return true
