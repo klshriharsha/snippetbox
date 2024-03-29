@@ -13,7 +13,7 @@ import (
 )
 
 // SnippetViewHandler displays the snippet corresponding to the `id` in the query parameters
-func SnippetViewHandler(app *config.Application) http.HandlerFunc {
+func snippetViewHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// get the snippet id from named parameters in the request context
 		params := httprouter.ParamsFromContext(r.Context())
@@ -48,7 +48,7 @@ type snippetCreateFrom struct {
 	validator.Validator `form:"-"`
 }
 
-func SnippetCreateHandler(app *config.Application) http.HandlerFunc {
+func snippetCreateHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := app.NewTemplateData(r)
 		data.Form = snippetCreateFrom{Expires: 365}
@@ -59,7 +59,7 @@ func SnippetCreateHandler(app *config.Application) http.HandlerFunc {
 
 // SnippetCreatePostHandler creates a new snippet in the database and sends a redirect response
 // to view the created snippet
-func SnippetCreatePostHandler(app *config.Application) http.HandlerFunc {
+func snippetCreatePostHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		form := snippetCreateFrom{Validator: validator.Validator{FieldErrors: make(map[string]string)}}
 		if err := app.DecodePostForm(r, &form); err != nil {

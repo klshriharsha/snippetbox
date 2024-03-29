@@ -1,4 +1,4 @@
-package main
+package middleware
 
 import (
 	"net/http"
@@ -8,7 +8,7 @@ import (
 
 // secureHeaders middleware sets important header fields in every response to avoid various types of
 // attacks
-func secureHeaders(next http.Handler) http.Handler {
+func SecureHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// load resources only from self or certain resources from google fonts
 		csp := "default-src 'self'; style-src 'self' fonts.googleapis.com; font-src fonts.gstatic.com"
@@ -24,7 +24,7 @@ func secureHeaders(next http.Handler) http.Handler {
 	})
 }
 
-func noSurf(next http.Handler) http.Handler {
+func NoSurf(next http.Handler) http.Handler {
 	csrfHandler := nosurf.New(next)
 	csrfHandler.SetBaseCookie(http.Cookie{
 		HttpOnly: true,

@@ -16,6 +16,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/klshriharsha/snippetbox/cmd/web/config"
+	"github.com/klshriharsha/snippetbox/cmd/web/handlers"
 	"github.com/klshriharsha/snippetbox/internal/models"
 )
 
@@ -76,7 +77,7 @@ func main() {
 	// create an http server with custom error logger
 	srv := &http.Server{
 		Addr:         *addr,
-		Handler:      routes(app),
+		Handler:      handlers.Routes(app),
 		ErrorLog:     errorLog,
 		TLSConfig:    &tlsConfig,
 		IdleTimeout:  time.Minute,

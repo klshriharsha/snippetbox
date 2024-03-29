@@ -7,7 +7,7 @@ import (
 )
 
 // HomeHandler display a list of the latest 10 un-expired snippets
-func HomeHandler(app *config.Application) http.HandlerFunc {
+func homeHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		snippets, err := app.Snippets.Latest()
 		if err != nil {

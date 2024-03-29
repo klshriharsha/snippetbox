@@ -1,29 +1,21 @@
 package handlers
 
 import (
-	"io"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/klshriharsha/snippetbox/internal/assert"
+	"github.com/klshriharsha/snippetbox/internal/testutils"
 )
 
 func TestPing(t *testing.T) {
-	rr := httptest.NewRecorder()
-	r, err := http.NewRequest(http.MethodGet, "/", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	pingHandler(rr, r)
+	// setup
+	app := testutils.NewTestApplication(t)
+	ts := testutils.NewTestServer(t, Routes(app))
+	defer ts.Close()
 
-	rs := rr.Result()
-	assert.Equal(t, rs.StatusCode, http.StatusOK)
-
-	defer rs.Body.Close()
-	body, err := io.ReadAll(rs.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
+	// make a GET request to /ping
+	statusCode, _, body := ts.Get(t, "/ping")
+	assert.Equal(t, statusCode, http.StatusOK)
 	assert.Equal(t, string(body), "OK")
 }

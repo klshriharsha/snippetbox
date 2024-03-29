@@ -17,7 +17,7 @@ type signupForm struct {
 }
 
 // SignupHandler renders a signup form
-func SignupHandler(app *config.Application) http.HandlerFunc {
+func signupHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := app.NewTemplateData(r)
 		data.Form = signupForm{}
@@ -27,7 +27,7 @@ func SignupHandler(app *config.Application) http.HandlerFunc {
 }
 
 // SignupPostHandler receives a POST request and creates a new request in the database
-func SignupPostHandler(app *config.Application) http.HandlerFunc {
+func signupPostHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		form := signupForm{Validator: validator.Validator{FieldErrors: make(map[string]string)}}
 		if err := app.DecodePostForm(r, &form); err != nil {
@@ -75,7 +75,7 @@ type loginForm struct {
 	validator.Validator `form:"-"`
 }
 
-func LoginHandler(app *config.Application) http.HandlerFunc {
+func loginHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := app.NewTemplateData(r)
 		data.Form = loginForm{}
@@ -84,7 +84,7 @@ func LoginHandler(app *config.Application) http.HandlerFunc {
 	}
 }
 
-func LoginPostHandler(app *config.Application) http.HandlerFunc {
+func loginPostHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		form := loginForm{}
 		if err := app.DecodePostForm(r, &form); err != nil {
@@ -133,7 +133,7 @@ func LoginPostHandler(app *config.Application) http.HandlerFunc {
 	}
 }
 
-func LogoutPostHandler(app *config.Application) http.HandlerFunc {
+func logoutPostHandler(app *config.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := app.SessionManager.RenewToken(r.Context()); err != nil {
 			app.ServerError(w, err)
