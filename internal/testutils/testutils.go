@@ -7,13 +7,36 @@ import (
 	"net/http/cookiejar"
 	"net/http/httptest"
 	"testing"
+	"time"
 
+	"github.com/alexedwards/scs/v2"
+	"github.com/go-playground/form"
 	"github.com/klshriharsha/snippetbox/cmd/web/config"
+	"github.com/klshriharsha/snippetbox/internal/models/mocks"
 )
 
 // NewTestApplication initializes a new `Application` for the test environment with discarded logs
 func NewTestApplication(t *testing.T) *config.Application {
-	return &config.Application{ErrorLog: log.New(io.Discard, "", 0), InfoLog: log.New(io.Discard, "", 0)}
+	cache, err := config.NewTemplateCache()
+	if err != nil {
+		t.Fatal(err)
+	}
+	decoder := form.NewDecoder()
+	sessionManager := scs.New()
+	sessionManager.Lifetime = 12 * time.Hour
+	sessionManager.Cookie.Secure = true
+
+	return &config.Application{
+		ErrorLog: log.New(io.Discard, "", 0),
+		InfoLog:  log.New(io.Discard, "", 0),
+
+		Snippets: &mocks.SnippetModel{},
+		Users:    &mocks.UserModel{},
+
+		TemplateCache:  cache,
+		FormDecoder:    decoder,
+		SessionManager: sessionManager,
+	}
 }
 
 // TestServer encapsulates the test server and provides functions to make requests
