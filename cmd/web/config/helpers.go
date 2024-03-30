@@ -15,7 +15,12 @@ func (app *Application) ServerError(w http.ResponseWriter, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
 	app.ErrorLog.Output(2, trace)
 
-	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	body := http.StatusText(http.StatusInternalServerError)
+	if app.DebugMode {
+		body = trace
+	}
+
+	http.Error(w, body, http.StatusInternalServerError)
 }
 
 // ClientError responds with an HTTP error of gives status code

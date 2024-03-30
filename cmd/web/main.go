@@ -29,6 +29,7 @@ func main() {
 		"postgresql://web:3c523592-852d-42be-915c-d5931792e39e@localhost:5432/postgres",
 		"PostgreSQL URL",
 	)
+	debugMode := flag.Bool("debug", false, "Debug mode")
 	flag.Parse()
 
 	// create informational and error loggers
@@ -58,8 +59,9 @@ func main() {
 
 	// for injecting dependencies to handlers
 	app := &config.Application{
-		ErrorLog: errorLog,
-		InfoLog:  infoLog,
+		ErrorLog:  errorLog,
+		InfoLog:   infoLog,
+		DebugMode: *debugMode,
 
 		Snippets: &models.SnippetModel{DB: pool},
 		Users:    &models.UserModel{DB: pool},

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/klshriharsha/snippetbox/internal/assert"
@@ -61,4 +62,36 @@ func TestSnippetViewHandler(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestSnippetCreateHandler(t *testing.T) {
+	t.Run("Unauthenticated", func(t *testing.T) {
+		app := testutils.NewTestApplication(t)
+		ts := testutils.NewTestServer(t, Routes(app))
+		defer ts.Close()
+
+		statusCode, header, _ := ts.Get(t, "/snippet/create")
+		assert.Equal(t, statusCode, http.StatusSeeOther)
+		assert.Equal(t, header.Get("Location"), "/user/login")
+
+	})
+
+	t.Run("Authenticated", func(t *testing.T) {
+		app := testutils.NewTestApplication(t)
+		ts := testutils.NewTestServer(t, Routes(app))
+		defer ts.Close()
+
+		_, _, body := ts.Get(t, "/user/login")
+		csrfToken := testutils.ExtractCSRFToken(t, body)
+
+		form := url.Values{}
+		form.Add("email", "snippetbox@example.com")
+		form.Add("password", "password")
+		form.Add("csrf_token", csrfToken)
+		ts.Post(t, "/user/login", form)
+
+		statusCode, _, body := ts.Get(t, "/snippet/create")
+		assert.Equal(t, statusCode, http.StatusOK)
+		assert.StringContains(t, body, `<form action='/snippet/create' method='POST'>`)
+	})
 }

@@ -12,8 +12,9 @@ import (
 // application is used for dependency injection throughout the `web` application
 type Application struct {
 	// config
-	InfoLog  *log.Logger
-	ErrorLog *log.Logger
+	InfoLog   *log.Logger
+	ErrorLog  *log.Logger
+	DebugMode bool
 
 	// models
 	// Snippets exposes database operations related to snippets
