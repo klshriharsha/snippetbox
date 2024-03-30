@@ -14,7 +14,7 @@ func NewTestDB(t *testing.T) *pgxpool.Pool {
 	// connect to the test DB
 	conn, err := pgxpool.New(
 		context.Background(),
-		"postgresql://test_web:3c523592-852d-42be-915c-d5931792e39e@localhost:5432/test",
+		"postgresql://root:password@localhost:5432/test",
 	)
 	if err != nil {
 		t.Fatal(err)
