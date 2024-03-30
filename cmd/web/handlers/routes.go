@@ -26,6 +26,8 @@ func Routes(app *config.Application) http.Handler {
 	dynamic := alice.New(app.SessionManager.LoadAndSave, middleware.NoSurf, app.Authenticate)
 
 	router.Handler(http.MethodGet, "/", dynamic.Then(homeHandler(app)))
+	// about page
+	router.Handler(http.MethodGet, "/about", dynamic.Then(aboutHandler(app)))
 
 	router.Handler(http.MethodGet, "/user/signup", dynamic.Then(signupHandler(app)))
 	router.Handler(http.MethodPost, "/user/signup", dynamic.Then(signupPostHandler(app)))
