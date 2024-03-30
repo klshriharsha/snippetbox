@@ -43,6 +43,7 @@ func Routes(app *config.Application) http.Handler {
 	router.Handler(http.MethodPost, "/snippet/create", protected.Then(snippetCreatePostHandler(app)))
 
 	router.Handler(http.MethodPost, "/user/logout", protected.Then(logoutPostHandler(app)))
+	router.Handler(http.MethodGet, "/account/view", protected.Then(accountViewHandler(app)))
 
 	fs := http.FileServer(http.FS(ui.Files))
 	router.Handler(http.MethodGet, "/static/*filepath", fs)

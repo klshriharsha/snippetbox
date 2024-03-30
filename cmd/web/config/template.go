@@ -14,6 +14,7 @@ import (
 
 // TemplateData holds all the data passed to Go templates
 type TemplateData struct {
+	User            *models.User
 	Snippet         *models.Snippet
 	Snippets        []*models.Snippet
 	CurrentYear     int
