@@ -1,4 +1,4 @@
--- ################## Create a new table ##################
+-- ################## Create tables ##################
 
 CREATE TABLE snippets (
 	id SERIAL PRIMARY KEY,
@@ -8,6 +8,14 @@ CREATE TABLE snippets (
 	expires TIMESTAMPTZ NOT NULL
 );
 CREATE INDEX idx_snippets_created ON snippets(created);
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    hashed_password CHAR(60) NOT NULL,
+    created TIMESTAMPTZ NOT NULL
+);
 
 -- ################## Insert new rows ##################
 

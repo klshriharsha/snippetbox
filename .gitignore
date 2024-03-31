@@ -1,3 +1,4 @@
 *.log
 tls/
 .DS_Store
+tmp/
